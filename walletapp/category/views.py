@@ -12,3 +12,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
             user=self.request.user,
             parent=None  # Only get main categories
         )
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
