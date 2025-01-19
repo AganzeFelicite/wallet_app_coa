@@ -11,15 +11,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import {
-  Bell,
-  Plus,
-  Wallet,
-  Clock,
-  PieChart,
-  Settings,
-  LogOut,
-} from "lucide-react";
+import { Plus, Wallet, Clock, PieChart, Settings } from "lucide-react";
 
 const mockTransactionData = [
   { name: "Jan", expenses: 4000, income: 4400 },
