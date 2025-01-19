@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import TransactionsTable from "../components/Transact!onTable";
-import axios from "axios";
 
 const TransactionsPage = () => {
   const [transactions, setTransactions] = useState([]);
@@ -9,8 +8,8 @@ const TransactionsPage = () => {
     category: "",
     date: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [isLoading] = useState(false);
+  const [error] = useState("");
 
   //   useEffect(() => {
   //     const fetchTransactions = async () => {

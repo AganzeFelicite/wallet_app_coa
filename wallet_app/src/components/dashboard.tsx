@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import TransactionsPage from "./transact";
 import AccountAndBudgetPage from "./Account";
 import DashboardHeader from "./DashboardHearder";
@@ -201,7 +201,7 @@ export default function Dashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto ">
         {/* Header */}
         <DashboardHeader />
         {/* Dashboard Content */}
