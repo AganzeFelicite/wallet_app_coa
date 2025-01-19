@@ -2,7 +2,7 @@ import { useState } from "react";
 import TransactionsTable from "../components/Transact!onTable";
 
 const TransactionsPage = () => {
-  const [transactions, setTransactions] = useState([]);
+  const [transactions] = useState([]);
   const [filters, setFilters] = useState({
     account: "",
     category: "",

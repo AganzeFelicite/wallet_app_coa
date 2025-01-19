@@ -21,7 +21,7 @@ const SignupForm: React.FC = () => {
     }
 
     try {
-      const response = await axios.post(BASE_URL + "auth/users/", {
+      const response = await axios.post(`${BASE_URL}auth/users/`, {
         username,
         email,
         password,
@@ -30,16 +30,26 @@ const SignupForm: React.FC = () => {
 
       // Handle success
       setSuccess("User created successfully!");
+      setError(null); // Clear any previous errors
       console.log(response.data);
-      setError(null); // Clear previous errors
-      navigate("/login");
+
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        setSuccess(null);
+        navigate("/login");
+      }, 2000);
     } catch (err) {
-      // Handle error
+      // Handle errors from Axios or network issues
       if (axios.isAxiosError(err) && err.response) {
-        setError("Error creating user: " + err.response.data.detail);
+        const errorMessage =
+          err.response.data?.detail ||
+          Object.values(err.response.data || {}).join(", ") ||
+          "An error occurred. Please try again.";
+        setError(errorMessage);
       } else {
-        setError("Something went wrong. Please try again.");
+        setError("Network error. Please try again later.");
       }
+      setSuccess(null); // Clear success message on error
     }
   };
 
@@ -49,7 +59,10 @@ const SignupForm: React.FC = () => {
         <h2 className="text-2xl font-semibold text-center mb-6">
           Create an Account
         </h2>
+        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {success && <p className="text-green-500 text-sm mb-4">{success}</p>}
         <form onSubmit={handleSubmit}>
+          {/* Username Field */}
           <div className="mb-4">
             <label
               htmlFor="username"
@@ -67,6 +80,8 @@ const SignupForm: React.FC = () => {
               placeholder="Enter your username"
             />
           </div>
+
+          {/* Email Field */}
           <div className="mb-4">
             <label
               htmlFor="email"
@@ -84,6 +99,8 @@ const SignupForm: React.FC = () => {
               placeholder="Enter your email"
             />
           </div>
+
+          {/* Password Field */}
           <div className="mb-4">
             <label
               htmlFor="password"
@@ -101,6 +118,8 @@ const SignupForm: React.FC = () => {
               placeholder="Enter your password"
             />
           </div>
+
+          {/* Re-enter Password Field */}
           <div className="mb-6">
             <label
               htmlFor="rePassword"
@@ -118,6 +137,8 @@ const SignupForm: React.FC = () => {
               placeholder="Re-enter your password"
             />
           </div>
+
+          {/* Submit Button */}
           <button
             type="submit"
             className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition duration-300"

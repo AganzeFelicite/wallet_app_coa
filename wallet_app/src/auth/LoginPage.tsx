@@ -1,20 +1,16 @@
 // src/components/LoginPage.tsx
 
 import React, { useState } from "react";
-import axios from "axios";
-import Navigation from "./nav";
-import { useNavigate } from "react-router-dom";
-import BASE_URL from "../config";
 import { useAuth } from "./context/AuthContext";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const navigate = useNavigate();
+  const [error] = useState<string | null>(null);
+  const [isLoading] = useState<boolean>(false);
+  // const navigate = useNavigate();
 
-  const { login, isAuthenticated } = useAuth();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
