@@ -6,10 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "start": "vite preview",
     "lint": "eslint .",
     "preview": "vite preview"
   },
-  "dependencies": {
+  "dependencles": {
     "@types/axios": "^0.14.4",
     "axios": "^1.7.9",
     "chart.js": "^4.4.7",
