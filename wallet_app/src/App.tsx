@@ -15,8 +15,6 @@ const App: React.FC = () => (
     {/* Router should be at the top-level */}
     <AuthProvider>
       {" "}
-      {/* AuthProvider inside Router */}
-      {/* The Navigation component should be visible on every page */}
       <Navigation />
       {/* Main content */}
       <div className="container mx-auto mt-0 p-8">
