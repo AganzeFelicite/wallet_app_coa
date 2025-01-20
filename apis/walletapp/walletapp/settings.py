@@ -100,7 +100,8 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # React development server
+    "http://localhost:5173",
+    "https://wallet-app-coa.onrender.com/"  # React development server
 ]
 
 ROOT_URLCONF = 'walletapp.urls'
