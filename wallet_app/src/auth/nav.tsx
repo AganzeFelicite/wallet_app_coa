@@ -5,7 +5,7 @@ const Navigation: React.FC = () => {
   return (
     <nav className="bg-gray-800 text-white p-4 shadow-md">
       <div className="container mx-auto flex justify-between items-center">
-        <h1 className="text-xl font-semibold">Code of Africa</h1>
+        <h1 className="text-xl font-semibold">Code of Africa - e-wallet</h1>
         <div className="flex items-center space-x-6">
           <Link
             to="/login"
