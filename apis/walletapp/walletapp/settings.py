@@ -105,7 +105,8 @@ CORS_ALLOWED_ORIGINS = [
 
     # React development server
 ]
-ALLOWED_HOSTS = ["https://wallet-app-coa.onrender.com/"]
+ALLOWED_HOSTS = [
+    "https://wallet-app-coa.onrender.com/",  "wallet-app-coa-ap.onrender.com"]
 ROOT_URLCONF = 'walletapp.urls'
 
 TEMPLATES = [
