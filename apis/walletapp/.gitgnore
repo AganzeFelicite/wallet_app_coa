@@ -1,0 +1,19 @@
+# Compiled Python files
+__pycache__/
+*.pyc
+
+# Virtual environment
+env/
+
+# Django migration files
+*/migrations/
+
+# Local settings
+walletapp/settings.py
+
+# Static files
+/static/
+media/
+
+# Database
+db.sqlite3
