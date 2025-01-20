@@ -8,6 +8,7 @@ import Navigation from "./auth/nav";
 import ProtectedRoute from "./components/protectedRoutes";
 import { AuthProvider } from "./auth/context/AuthContext";
 import "./index.css";
+import Banner from "./components/imageBanner";
 
 const App: React.FC = () => (
   <Router>
@@ -26,6 +27,7 @@ const App: React.FC = () => (
             path="/dashboard"
             element={<ProtectedRoute element={<Dashboard />} />}
           />
+          <Route path="/" element={<Banner />} />
           {/* Public routes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupForm />} />
