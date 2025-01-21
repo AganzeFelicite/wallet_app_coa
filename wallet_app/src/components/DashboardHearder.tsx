@@ -14,11 +14,12 @@ interface Account {
 interface Category {
   id: number;
   name: string;
+  parent: string;
 }
 
 interface TransactionFormData {
   account: number;
-  category: number;
+  category: string | number;
   transaction_type: "INCOME" | "EXPENSE";
   amount: string;
   description: string;
@@ -105,6 +106,7 @@ const DashboardHeader = () => {
 
   // Handle transaction submission
   const submitTransaction = async (formData: TransactionFormData) => {
+    console.log("Submitting transaction:", formData);
     try {
       const response = await fetch(BASE_URL + "wallet/transactions/", {
         method: "POST",
@@ -263,7 +265,7 @@ const DashboardHeader = () => {
                   onChange={(e) =>
                     setIncomeForm({
                       ...incomeForm,
-                      category: Number(e.target.value),
+                      category: e.target.value,
                     })
                   }
                   required
