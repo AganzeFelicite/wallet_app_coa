@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TransactionsPage from "./transact";
 import AccountAndBudgetPage from "./Account";
 import DashboardHeader from "./DashboardHearder";
@@ -12,42 +12,65 @@ import {
   Legend,
 } from "recharts";
 import { Plus, Wallet, Clock, PieChart, Settings } from "lucide-react";
-
-const mockTransactionData = [
-  { name: "Jan", expenses: 4000, income: 4400 },
-  { name: "Feb", expenses: 3000, income: 4200 },
-  { name: "Mar", expenses: 2000, income: 3800 },
-  { name: "Apr", expenses: 2780, income: 3908 },
-  { name: "May", expenses: 1890, income: 4800 },
-  { name: "Jun", expenses: 2390, income: 3800 },
-];
-
-const mockTransactions = [
-  {
-    id: 1,
-    description: "Grocery Shopping",
-    amount: -120.5,
-    category: "Food",
-    date: "2025-01-17",
-  },
-  {
-    id: 2,
-    description: "Salary Deposit",
-    amount: 3500.0,
-    category: "Income",
-    date: "2025-01-15",
-  },
-  {
-    id: 3,
-    description: "Internet Bill",
-    amount: -59.99,
-    category: "Utilities",
-    date: "2025-01-14",
-  },
-];
+import { Transaction } from "../types/transact!on";
+import { useAuth } from "../auth/context/AuthContext";
+import axios from "axios";
+import BASE_URL from "../config";
 
 export default function Dashboard() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { authToken } = useAuth();
+
+  // Fetch transactions data from the API
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get<Transaction[]>(
+          `${BASE_URL}wallet/transactions/`,
+          {
+            headers: {
+              Authorization: `JWT ${authToken}`,
+            },
+          }
+        );
+        setTransactions(response.data);
+      } catch (err: any) {
+        setError(
+          err.response?.data?.message || "Failed to fetch transactions."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+    console.log(transactions);
+    fetchTransactions();
+  }, []);
+
+  // Format the fetched transactions for the chart
+  const chartData = transactions.map((transaction) => ({
+    date: new Date(transaction.date).toLocaleDateString(), // Format date for X axis
+    income:
+      transaction.category_name === "INCOME"
+        ? parseFloat(transaction.amount.toString())
+        : 0,
+    expense:
+      transaction.category_name === "EXPENSE"
+        ? parseFloat(transaction.amount.toString())
+        : 0,
+  }));
+
+  // Calculate the total expenses
+  const totalExpenses = transactions
+    .filter((transaction) => transaction.category_name === "EXPENSE")
+    .reduce(
+      (acc, transaction) => acc + parseFloat(transaction.amount.toString()),
+      0
+    );
 
   // Function to render content based on active menu
   const renderContent = () => {
@@ -70,8 +93,8 @@ export default function Dashboard() {
                 },
                 {
                   title: "Monthly Expenses",
-                  amount: "$2,150.30",
-                  change: "-1.2%",
+                  amount: `$${totalExpenses.toFixed(2)}`,
+                  change: "-1.2%", // Optional: Calculate the change in expenses
                 },
               ].map((stat) => (
                 <div
@@ -102,50 +125,55 @@ export default function Dashboard() {
                 <h3 className="text-lg font-semibold mb-4">
                   Income vs Expenses
                 </h3>
-                <LineChart width={500} height={300} data={mockTransactionData}>
+                <LineChart width={500} height={300} data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
+                  <XAxis dataKey="date" />
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Line type="monotone" dataKey="income" stroke="#4F46E5" />
-                  <Line type="monotone" dataKey="expenses" stroke="#EF4444" />
+                  <Line
+                    type="monotone"
+                    dataKey="income"
+                    stroke="#4F46E5"
+                    activeDot={{ r: 8 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="expense"
+                    stroke="#EF4444"
+                    activeDot={{ r: 8 }}
+                  />
                 </LineChart>
               </div>
 
-              {/* Recent Transactions */}
+              {/* Recent Expenses */}
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold">Recent Transactions</h3>
-                  <button className="flex items-center text-blue-600 hover:text-blue-700">
-                    <Plus size={16} className="mr-1" />
-                    Add New
-                  </button>
+                  <h3 className="text-lg font-semibold">Recent Expenses</h3>
                 </div>
                 <div className="space-y-4">
-                  {mockTransactions.map((transaction) => (
-                    <div
-                      key={transaction.id}
-                      className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
-                    >
-                      <div>
-                        <p className="font-medium">{transaction.description}</p>
-                        <p className="text-sm text-gray-500">
-                          {transaction.category} • {transaction.date}
-                        </p>
-                      </div>
-                      <span
-                        className={`font-medium ${
-                          transaction.amount > 0
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
+                  {transactions
+                    .filter(
+                      (transaction) => transaction.category_name === "EXPENSE"
+                    )
+                    .map((transaction) => (
+                      <div
+                        key={transaction.id}
+                        className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
                       >
-                        {transaction.amount > 0 ? "+" : ""}
-                        {transaction.amount.toFixed(2)}
-                      </span>
-                    </div>
-                  ))}
+                        <div>
+                          <p className="font-medium">
+                            {transaction.description}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {transaction.category_name} • {transaction.date}
+                          </p>
+                        </div>
+                        <span className="font-medium text-red-600">
+                          -{transaction.amount}
+                        </span>
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>
