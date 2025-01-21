@@ -1,36 +1,101 @@
 import { useEffect, useState } from "react";
-import { Bell } from "react-feather";
+import { Bell } from "lucide-react";
+import BASE_URL from "../config";
+import { useAuth } from "../auth/context/AuthContext";
 
-import { fetchAccounts, Account } from "../utils/api";
+// Define interfaces for our data types
+interface Account {
+  id: number;
+  name: string;
+  account_type: string;
+  balance: string;
+}
 
-// interface TransactionFormData {
-//   account: number;
-//   category: number;
-//   transaction_type: "INCOME" | "EXPENSE";
-//   amount: string;
-//   description: string;
-//   date: string;
-// }
+interface Category {
+  id: number;
+  name: string;
+}
+
+interface TransactionFormData {
+  account: number;
+  category: number;
+  transaction_type: "INCOME" | "EXPENSE";
+  amount: string;
+  description: string;
+  date: string;
+}
 
 const DashboardHeader = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [showAddIncomeModal, setShowAddIncomeModal] = useState(false);
   const [showRegisterExpenseModal, setShowRegisterExpenseModal] =
     useState(false);
+  const { authToken } = useAuth();
+  // Form states
+  const [incomeForm, setIncomeForm] = useState<TransactionFormData>({
+    account: 0,
+    category: 1,
+    transaction_type: "INCOME",
+    amount: "",
+    description: "",
+    date: new Date().toISOString(),
+  });
 
+  const [expenseForm, setExpenseForm] = useState<TransactionFormData>({
+    account: 0,
+    category: 1,
+    transaction_type: "EXPENSE",
+    amount: "",
+    description: "",
+    date: new Date().toISOString(),
+  });
+
+  // Fetch both accounts and categories
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await fetchAccounts();
-        setAccounts(data);
-        console.log("Accounts fetched:", data);
+        // Fetch accounts
+        const accountsResponse = await fetch(BASE_URL + "wallet/accounts/", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `JWT ${authToken}`,
+          },
+        });
+
+        if (!accountsResponse.ok) {
+          throw new Error(`HTTP error! status: ${accountsResponse.status}`);
+        }
+
+        const accountsData = await accountsResponse.json();
+        setAccounts(accountsData);
+
+        // Fetch categories
+        const categoriesResponse = await fetch(
+          BASE_URL + "wallet/categories/",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `JWT ${authToken}`,
+            },
+          }
+        );
+
+        if (!categoriesResponse.ok) {
+          throw new Error(`HTTP error! status: ${categoriesResponse.status}`);
+        }
+
+        const categoriesData = await categoriesResponse.json();
+        setCategories(categoriesData);
       } catch (error) {
-        console.error("Error fetching accounts:", error);
+        console.error("Error fetching data:", error);
       }
     };
+
     fetchData();
   }, []);
-  // Form states for Income
 
   // Toggle functions for modals
   const openAddIncomeModal = () => setShowAddIncomeModal(true);
@@ -38,39 +103,81 @@ const DashboardHeader = () => {
   const openRegisterExpenseModal = () => setShowRegisterExpenseModal(true);
   const closeRegisterExpenseModal = () => setShowRegisterExpenseModal(false);
 
-  //   // Handle Income Form Submit
-  //   const handleIncomeSubmit = async (e: React.FormEvent) => {
-  //     e.preventDefault();
-  //     try {
-  //       const response = await axios.post(
-  //         "YOUR_API_ENDPOINT/transactions/",
-  //         incomeForm
-  //       );
-  //       console.log("Income added:", response.data);
-  //       closeAddIncomeModal();
-  //       // Add success notification here
-  //     } catch (error) {
-  //       console.error("Error adding income:", error);
-  //       // Add error notification here
-  //     }
-  //   };
+  // Handle transaction submission
+  const submitTransaction = async (formData: TransactionFormData) => {
+    try {
+      const response = await fetch(BASE_URL + "wallet/transactions/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${authToken}`,
+        },
+        body: JSON.stringify(formData),
+      });
 
-  //   // Handle Expense Form Submit
-  //   const handleExpenseSubmit = async (e: React.FormEvent) => {
-  //     e.preventDefault();
-  //     try {
-  //       const response = await axios.post(
-  //         "YOUR_API_ENDPOINT/transactions/",
-  //         expenseForm
-  //       );
-  //       console.log("Expense added:", response.data);
-  //       closeRegisterExpenseModal();
-  //       // Add success notification here
-  //     } catch (error) {
-  //       console.error("Error adding expense:", error);
-  //       // Add error notification here
-  //     }
-  //   };
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      // Refresh accounts after transaction
+      const accountsResponse = await fetch(BASE_URL + "wallet/accounts/", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${authToken}`,
+        },
+      });
+
+      const accountsData = await accountsResponse.json();
+      setAccounts(accountsData);
+
+      return data;
+    } catch (error) {
+      console.error("Transaction submission error:", error);
+      throw error;
+    }
+  };
+
+  // Handle Income Form Submit
+  const handleIncomeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await submitTransaction(incomeForm);
+      closeAddIncomeModal();
+      // Reset form
+      setIncomeForm({
+        account: 0,
+        category: 1,
+        transaction_type: "INCOME",
+        amount: "",
+        description: "",
+        date: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("Error adding income:", error);
+    }
+  };
+
+  // Handle Expense Form Submit
+  const handleExpenseSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await submitTransaction(expenseForm);
+      closeRegisterExpenseModal();
+      // Reset form
+      setExpenseForm({
+        account: 0,
+        category: 1,
+        transaction_type: "EXPENSE",
+        amount: "",
+        description: "",
+        date: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("Error adding expense:", error);
+    }
+  };
 
   return (
     <div>
@@ -114,19 +221,57 @@ const DashboardHeader = () => {
         <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h3 className="text-xl font-semibold mb-4">Add Income</h3>
-            <form>
+            <form onSubmit={handleIncomeSubmit}>
               <div className="mb-4">
                 <label
-                  htmlFor="income-amount"
+                  htmlFor="income-account"
                   className="block text-gray-700 mb-2"
                 >
                   Account
                 </label>
-                <select>
+                <select
+                  id="income-account"
+                  className="w-full p-2 border rounded"
+                  value={incomeForm.account}
+                  onChange={(e) =>
+                    setIncomeForm({
+                      ...incomeForm,
+                      account: Number(e.target.value),
+                    })
+                  }
+                  required
+                >
                   <option value="">Select an account</option>
                   {accounts.map((account) => (
                     <option key={account.id} value={account.id}>
                       {account.name} - {account.balance}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="income-category"
+                  className="block text-gray-700 mb-2"
+                >
+                  Category
+                </label>
+                <select
+                  id="income-category"
+                  className="w-full p-2 border rounded"
+                  value={incomeForm.category}
+                  onChange={(e) =>
+                    setIncomeForm({
+                      ...incomeForm,
+                      category: Number(e.target.value),
+                    })
+                  }
+                  required
+                >
+                  <option value="">Select a category</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
                     </option>
                   ))}
                 </select>
@@ -142,10 +287,10 @@ const DashboardHeader = () => {
                   type="number"
                   id="income-amount"
                   className="w-full p-2 border rounded"
-                  //   value={incomeForm.amount}
-                  //   onChange={(e) =>
-                  //     setIncomeForm({ ...incomeForm, amount: e.target.value })
-                  //   }
+                  value={incomeForm.amount}
+                  onChange={(e) =>
+                    setIncomeForm({ ...incomeForm, amount: e.target.value })
+                  }
                   placeholder="Enter amount"
                   required
                 />
@@ -161,13 +306,13 @@ const DashboardHeader = () => {
                   type="text"
                   id="income-description"
                   className="w-full p-2 border rounded"
-                  //   value={incomeForm.description}
-                  //   onChange={(e) =>
-                  //     setIncomeForm({
-                  //       ...incomeForm,
-                  //       description: e.target.value,
-                  //     })
-                  //   }
+                  value={incomeForm.description}
+                  onChange={(e) =>
+                    setIncomeForm({
+                      ...incomeForm,
+                      description: e.target.value,
+                    })
+                  }
                   placeholder="Enter description"
                   required
                 />
@@ -183,13 +328,13 @@ const DashboardHeader = () => {
                   type="datetime-local"
                   id="income-date"
                   className="w-full p-2 border rounded"
-                  //   value={incomeForm.date.slice(0, 16)}
-                  //   onChange={(e) =>
-                  //     setIncomeForm({
-                  //       ...incomeForm,
-                  //       date: new Date(e.target.value).toISOString(),
-                  //     })
-                  //   }
+                  value={incomeForm.date.slice(0, 16)}
+                  onChange={(e) =>
+                    setIncomeForm({
+                      ...incomeForm,
+                      date: new Date(e.target.value).toISOString(),
+                    })
+                  }
                   required
                 />
               </div>
@@ -218,7 +363,61 @@ const DashboardHeader = () => {
         <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h3 className="text-xl font-semibold mb-4">Register Expense</h3>
-            <form>
+            <form onSubmit={handleExpenseSubmit}>
+              <div className="mb-4">
+                <label
+                  htmlFor="expense-account"
+                  className="block text-gray-700 mb-2"
+                >
+                  Account
+                </label>
+                <select
+                  id="expense-account"
+                  className="w-full p-2 border rounded"
+                  value={expenseForm.account}
+                  onChange={(e) =>
+                    setExpenseForm({
+                      ...expenseForm,
+                      account: Number(e.target.value),
+                    })
+                  }
+                  required
+                >
+                  <option value="">Select an account</option>
+                  {accounts.map((account) => (
+                    <option key={account.id} value={account.id}>
+                      {account.name} - {account.balance}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="expense-category"
+                  className="block text-gray-700 mb-2"
+                >
+                  Category
+                </label>
+                <select
+                  id="expense-category"
+                  className="w-full p-2 border rounded"
+                  value={expenseForm.category}
+                  onChange={(e) =>
+                    setExpenseForm({
+                      ...expenseForm,
+                      category: Number(e.target.value),
+                    })
+                  }
+                  required
+                >
+                  <option value="">Select a category</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div className="mb-4">
                 <label
                   htmlFor="expense-amount"
@@ -230,10 +429,10 @@ const DashboardHeader = () => {
                   type="number"
                   id="expense-amount"
                   className="w-full p-2 border rounded"
-                  //   value={expenseForm.amount}
-                  //   onChange={(e) =>
-                  //     setExpenseForm({ ...expenseForm, amount: e.target.value })
-                  //   }
+                  value={expenseForm.amount}
+                  onChange={(e) =>
+                    setExpenseForm({ ...expenseForm, amount: e.target.value })
+                  }
                   placeholder="Enter amount"
                   required
                 />
@@ -249,13 +448,13 @@ const DashboardHeader = () => {
                   type="text"
                   id="expense-description"
                   className="w-full p-2 border rounded"
-                  //   value={expenseForm.description}
-                  //   onChange={(e) =>
-                  //     setExpenseForm({
-                  //       ...expenseForm,
-                  //       description: e.target.value,
-                  //     })
-                  //   }
+                  value={expenseForm.description}
+                  onChange={(e) =>
+                    setExpenseForm({
+                      ...expenseForm,
+                      description: e.target.value,
+                    })
+                  }
                   placeholder="Enter description"
                   required
                 />
@@ -271,13 +470,13 @@ const DashboardHeader = () => {
                   type="datetime-local"
                   id="expense-date"
                   className="w-full p-2 border rounded"
-                  //   value={expenseForm.date.slice(0, 16)}
-                  //   onChange={(e) =>
-                  //     setExpenseForm({
-                  //       ...expenseForm,
-                  //       date: new Date(e.target.value).toISOString(),
-                  //     })
-                  //   }
+                  value={expenseForm.date.slice(0, 16)}
+                  onChange={(e) =>
+                    setExpenseForm({
+                      ...expenseForm,
+                      date: new Date(e.target.value).toISOString(),
+                    })
+                  }
                   required
                 />
               </div>
