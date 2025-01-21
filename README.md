@@ -98,14 +98,14 @@ This project is licensed under the MIT License. See the LICENSE file for details
 
 ![App Dash logn](https://raw.githubusercontent.com/AganzeFelicite/wallet_app_coa/refs/heads/main/screen_shots/Pasted%20image.png)
 
-![App Dash transactions]([https://raw.githubusercontent.com/AganzeFelicite/wallet_app_coa/refs/heads/main/screen_shots/Pasted%20image.png](https://raw.githubusercontent.com/AganzeFelicite/wallet_app_coa/refs/heads/main/screen_shots/transactions.png))
+![App Dash transactions](https://raw.githubusercontent.com/AganzeFelicite/wallet_app_coa/refs/heads/main/screen_shots/transactions.png)
 
-![App register expenses]([https://raw.githubusercontent.com/AganzeFelicite/wallet_app_coa/refs/heads/main/screen_shots/Pasted%20image.png](https://raw.githubusercontent.com/AganzeFelicite/wallet_app_coa/refs/heads/main/screen_shots/addincome.png))
+![App register expenses](https://raw.githubusercontent.com/AganzeFelicite/wallet_app_coa/refs/heads/main/screen_shots/addincome.png)
 ![App register income](https://raw.githubusercontent.com/AganzeFelicite/wallet_app_coa/refs/heads/main/screen_shots/screened.png)
 
-![App create categories, accounts, buget](https://raw.githubusercontent.com/AganzeFelicite/wallet_app_coa/refs/heads/main/screen_shots/screened.png](https://raw.githubusercontent.com/AganzeFelicite/wallet_app_coa/refs/heads/main/screen_shots/addbuget.png))
+![App create categories, accounts, buget](https://raw.githubusercontent.com/AganzeFelicite/wallet_app_coa/refs/heads/main/screen_shots/addbuget.png)
 
-![App transaction report]([https://raw.githubusercontent.com/AganzeFelicite/wallet_app_coa/refs/heads/main/screen_shots/screened.png](https://raw.githubusercontent.com/AganzeFelicite/wallet_app_coa/refs/heads/main/screen_shots/addbuget.png)](https://raw.githubusercontent.com/AganzeFelicite/wallet_app_coa/refs/heads/main/screen_shots/Pasted%20image%20(8).png))
+![App transaction report](https://raw.githubusercontent.com/AganzeFelicite/wallet_app_coa/refs/heads/main/screen_shots/Pasted%20image%20(8).png)
 
 
 
