@@ -5,7 +5,7 @@ This project is a web application designed to help users manage their finances e
 This application is hosted on [render.com]. The live application can be accessed at:
 
 [Live Application Link](https://wallet-app-coa.onrender.com/)
-The bacend
+
 
 
 ## Features
